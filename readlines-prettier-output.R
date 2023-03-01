@@ -1,0 +1,43 @@
+library(shiny)
+library(readr)
+
+# Define UI
+ui <- fluidPage(
+  titlePanel("Random Text Window Selector"),
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("window_size", "Window size:", min = 100, max = 3000, value = 1900)
+    ),
+    mainPanel(
+      div(
+        style = "width: 500px; white-space: pre-wrap;",
+        textOutput("selected_window")
+      )
+    )
+  )
+)
+
+# Define server
+server <- function(input, output) {
+  # Read in text file
+  ftxt <- read_file('notes.txt')
+  beginning <- 275
+  end <- nchar(ftxt)
+  window <- beginning:end
+  
+  # Define function to select random text window
+  select_window <- function(window_size) {
+    random_place <- sample(window, 1)
+    portion <- substr(ftxt, random_place, random_place + window_size)
+    return(portion)
+  }
+  
+  # Output selected window based on slider input
+  output$selected_window <- renderText({
+    select_window(input$window_size)
+  })
+  
+}
+
+# Run the app
+shinyApp(ui, server)
